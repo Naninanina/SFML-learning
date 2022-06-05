@@ -1,5 +1,6 @@
 ﻿#include <SFML/Graphics.hpp>
 #include <iostream>
+#include "map.h"
 
 using namespace sf;
 
@@ -41,9 +42,18 @@ int main()
 {
 	RenderWindow window(VideoMode(640, 400), "☺ya hochu snegom stat'☺");
 
+	Image map_image; //объект изображения для карты
+	map_image.loadFromFile("../img/map_2.png"); //загружаем файл для карты
+	Texture map; //текстура карты
+	map.loadFromImage(map_image); //добавляем в текстуру картинку
+	Sprite s_map; //создаем спрайт для карты
+	s_map.setTexture(map); //заливаем спрайт текстурой
+
 	Player p("character.png", 50, 25, 68.0, 72.0);
+	Player cat("character_2.png", 50, 25, 160.0, 160.0);
 
 	float CurrentFrame = 0;
+	float CurrentFrameCat = 0;
 	Clock clock; //создаем переменную времени, т.е. привязка ко времени (а не загруженности/мощности процессора)
 
 	while (window.isOpen())
@@ -58,34 +68,79 @@ int main()
 				window.close();
 		}
 
-		if ((Keyboard::isKeyPressed(Keyboard::Left)) || (Keyboard::isKeyPressed(Keyboard::A))) {
+		if ((Keyboard::isKeyPressed(Keyboard::A))) {
 			p.dir = 1; p.speed = 0.1;
 			CurrentFrame += 0.005 * time;
 			if (CurrentFrame > 4) CurrentFrame -= 4;
 			p.sprite.setTextureRect(IntRect(68 * int(CurrentFrame), 72, 68, 72));
 		} 
-		if (Keyboard::isKeyPressed(Keyboard::Right) || (Keyboard::isKeyPressed(Keyboard::D))) {
+		if ((Keyboard::isKeyPressed(Keyboard::D))) {
 			p.dir = 0; p.speed = 0.1;
 			CurrentFrame += 0.005 * time;
 			if (CurrentFrame > 4) CurrentFrame -= 4;
 			p.sprite.setTextureRect(IntRect(68 * int(CurrentFrame), 144, 68, 72));
 		}
-		if (Keyboard::isKeyPressed(Keyboard::Up) || (Keyboard::isKeyPressed(Keyboard::W))) { 
+		if ((Keyboard::isKeyPressed(Keyboard::W))) { 
 			p.dir = 3; p.speed = 0.1;
 			CurrentFrame += 0.005 * time;
 			if (CurrentFrame > 4) CurrentFrame -= 4;
 			p.sprite.setTextureRect(IntRect(68 * int(CurrentFrame), 216, 68, 72));
 		}
-		if (Keyboard::isKeyPressed(Keyboard::Down) || (Keyboard::isKeyPressed(Keyboard::S))) { 
+		if ((Keyboard::isKeyPressed(Keyboard::S))) { 
 			p.dir = 2; p.speed = 0.1;
 			CurrentFrame += 0.005 * time;
 			if (CurrentFrame > 4) CurrentFrame -= 4;
 			p.sprite.setTextureRect(IntRect(68 * int(CurrentFrame), 0, 68, 72)); 
 		}
 
+		if ((Keyboard::isKeyPressed(Keyboard::Left))) {
+			cat.dir = 1; cat.speed = 0.2;
+			CurrentFrameCat += 0.005 * time;
+			if (CurrentFrameCat > 4) CurrentFrameCat -= 4;
+			cat.sprite.setTextureRect(IntRect(160 * int(CurrentFrameCat), 480, 160, 160));
+		}
+		if (Keyboard::isKeyPressed(Keyboard::Right)) {
+			cat.dir = 0; cat.speed = 0.2;
+			CurrentFrameCat += 0.005 * time;
+			if (CurrentFrameCat > 4) CurrentFrameCat -= 4;
+			cat.sprite.setTextureRect(IntRect(160 * int(CurrentFrameCat), 160, 160, 160));
+		}
+		if (Keyboard::isKeyPressed(Keyboard::Up)) {
+			cat.dir = 3; cat.speed = 0.2;
+			CurrentFrameCat += 0.005 * time;
+			if (CurrentFrameCat > 4) CurrentFrameCat -= 4;
+			cat.sprite.setTextureRect(IntRect(160 * int(CurrentFrameCat), 320, 160, 160));
+		}
+		if (Keyboard::isKeyPressed(Keyboard::Down)) {
+			cat.dir = 2; cat.speed = 0.2;
+			CurrentFrameCat += 0.005 * time;
+			if (CurrentFrameCat > 4) CurrentFrameCat -= 4;
+			cat.sprite.setTextureRect(IntRect(160 * int(CurrentFrameCat), 0, 160, 160));
+		}
+
 		p.update(time);
+		cat.update(time);
 		window.clear();
+
+		///////////////////////////////////////////////////////////////
+		Vector2f targetSize(32.0f, 32.0f);
+		for (int i = 0; i < HEIGHT_MAP; i++)
+		{	
+			for (int j = 0; j < WIDTH_MAP; j++)
+			{
+				if (TileMap[i][j] == ' ') s_map.setTextureRect(IntRect(160, 0, 160, 160)); 
+				if (TileMap[i][j] == 's') s_map.setTextureRect(IntRect(0, 0, 160, 160));
+				if (TileMap[i][j] == '0') s_map.setTextureRect(IntRect(320, 0, 160, 160));
+
+				s_map.setScale(targetSize.x / s_map.getLocalBounds().width, targetSize.y / s_map.getLocalBounds().height);
+
+				s_map.setPosition(j * 32, i * 32);
+
+				window.draw(s_map);
+			}
+		}
 		window.draw(p.sprite);
+		window.draw(cat.sprite);
 		window.display();
 	}
 
